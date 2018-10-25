@@ -1,6 +1,6 @@
 import requests
 
-from django.db.models import get_model
+from django.apps import apps
 
 from .errors import EasyRecException
 import logging
@@ -381,7 +381,7 @@ class EasyRec(object):
             upc = item.get('id')
             upcs.append(upc)
             url_map[upc] = item.get('url')
-        Product = get_model('catalogue', 'Product')
+        Product = apps.get_model('catalogue', 'Product')
         products = Product.browsable.filter(upc__in=upcs)
         results = []
         for product in products:
