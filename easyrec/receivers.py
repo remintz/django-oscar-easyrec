@@ -1,4 +1,3 @@
-from itertools import ifilter
 from django.conf import settings
 
 from oscar.core.loading import get_class
@@ -57,7 +56,7 @@ class EasyRecListeners():
         user_id = None
         if user.is_authenticated():
             user_id = user.id
-        for line in ifilter(has_product, order.lines.all()):
+        for line in filter(has_product, order.lines.all()):
             product = line.product
             image_url = None
             images = product.images.all()[:1]
