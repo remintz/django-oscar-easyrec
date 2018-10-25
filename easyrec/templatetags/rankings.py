@@ -1,9 +1,9 @@
 from easyrec.utils import get_gateway
 
 from django import template
-from django.db.models import get_model
+from django.apps import apps
 
-Product = get_model('catalogue', 'Product')
+Product = apps.get_model('catalogue', 'Product')
 
 easyrec = get_gateway()
 

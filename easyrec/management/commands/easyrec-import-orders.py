@@ -1,10 +1,10 @@
 from django.core.management.base import BaseCommand
-from django.db.models import get_model
+from django.apps import apps
 
 from easyrec.utils import get_gateway
 from easyrec.receivers import EasyRecListeners
 
-Order = get_model('order', 'Order')
+Order = apps.get_model('order', 'Order')
 listeners = EasyRecListeners(get_gateway())
 
 

@@ -4,13 +4,13 @@ from json import dumps
 
 from django.template import Template, Context
 from django_dynamic_fixture import G
-from django.db.models import get_model
+from django.apps import apps
 
 from httpretty import HTTPretty
 from httpretty import httprettified
 
 
-Product = get_model('catalogue','Product')
+Product = apps.get_model('catalogue','Product')
 
 
 def get_auth_user_mock():

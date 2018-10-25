@@ -4,12 +4,12 @@ from datetime import datetime
 from httpretty import HTTPretty
 from httpretty import httprettified
 from django_dynamic_fixture import G
-from django.db.models.loading import get_model
+from django.apps import apps
 
 from easyrec.gateway import EasyRec
 from easyrec.errors import EasyRecException
 
-Product = get_model('catalogue', 'Product')
+Product = apps.get_model('catalogue', 'Product')
 
 
 class GatewayTest(TestCase):
