@@ -9,7 +9,7 @@ easyrec = get_gateway()
 
 register = template.Library()
 
-@register.assignment_tag
+@register.simple_tag
 def most_viewed(
     time_range=None,
     max_results=None,
@@ -30,7 +30,7 @@ def most_viewed(
     except:
         return Product.objects.none()
 
-@register.assignment_tag
+@register.simple_tag
 def most_bought(
     time_range=None,
     max_results=None,
@@ -51,7 +51,7 @@ def most_bought(
     except:
         return Product.objects.none()
 
-@register.assignment_tag
+@register.simple_tag
 def most_rated(
     time_range=None,
     max_results=None,
@@ -72,7 +72,7 @@ def most_rated(
     except:
         return Product.objects.none()
 
-@register.assignment_tag
+@register.simple_tag
 def best_rated(
     time_range=None,
     max_results=None,
@@ -93,7 +93,7 @@ def best_rated(
     except:
         return Product.objects.none()
 
-@register.assignment_tag
+@register.simple_tag
 def worst_rated(
     time_range=None,
     max_results=None,

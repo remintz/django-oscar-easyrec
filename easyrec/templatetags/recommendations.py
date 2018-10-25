@@ -10,7 +10,7 @@ easyrec = get_gateway()
 register = template.Library()
 
 
-@register.assignment_tag
+@register.simple_tag
 def user_recommendations(
     user,
     max_results=None,
@@ -40,7 +40,7 @@ def user_recommendations(
         return Product.objects.none()
 
 
-@register.assignment_tag
+@register.simple_tag
 def users_also_bought(
         product,
         user=None,
@@ -68,7 +68,7 @@ def users_also_bought(
         return Product.objects.none()
 
 
-@register.assignment_tag
+@register.simple_tag
 def users_also_viewed(
         product,
         user=None,
@@ -97,7 +97,7 @@ def users_also_viewed(
         return Product.objects.none()
 
 
-@register.assignment_tag
+@register.simple_tag
 def products_rated_good(
         product,
         user=None,
@@ -119,7 +119,7 @@ def products_rated_good(
         return Product.objects.none()
 
 
-@register.assignment_tag
+@register.simple_tag
 def related_products(
         product,
         max_results=None,
