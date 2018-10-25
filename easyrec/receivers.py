@@ -32,7 +32,7 @@ class EasyRecListeners():
     def on_product_view(self, sender, product, user, request, **kwargs):
         image_url = None
         user_id = None
-        if user.is_authenticated():
+        if user.is_authenticated:
             user_id = user.id
         images = product.images.all()[:1]
         if len(images) > 0:
@@ -54,7 +54,7 @@ class EasyRecListeners():
 
     def on_post_checkout(self, sender, order, user, request, response, **kwargs):
         user_id = None
-        if user.is_authenticated():
+        if user.is_authenticated:
             user_id = user.id
         for line in filter(has_product, order.lines.all()):
             product = line.product
@@ -85,7 +85,7 @@ class EasyRecListeners():
     def on_review_added(self, sender, review, user, request, **kwargs):
         if has_product(review):
             user_id = None
-            if user.is_authenticated():
+            if user.is_authenticated:
                 user_id = review.user.id
 
             rating = review.score

@@ -23,7 +23,7 @@ def user_recommendations(
     Sets [var] to contain a list of recommended titles
     for the passed in user
     """
-    if not user.is_authenticated():
+    if not user.is_authenticated:
         return Product.objects.none()
 
     if action_type:
