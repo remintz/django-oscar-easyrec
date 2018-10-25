@@ -36,7 +36,6 @@ class EasyRecListeners():
             user_id = user.id
         images = product.images.all()[:1]
         if len(images) > 0:
-            image_url = images[0].thumbnail_url
             image_url = self._get_full_url(request, image_url)
 
         product_url = self._get_full_url(request, product.get_absolute_url())
@@ -61,7 +60,6 @@ class EasyRecListeners():
             image_url = None
             images = product.images.all()[:1]
             if len(images) > 0:
-                image_url = images[0].thumbnail_url
                 image_url = self._get_full_url(request, image_url)
 
             product_url = self._get_full_url(
@@ -93,7 +91,6 @@ class EasyRecListeners():
             image_url = None
             images = product.images.all()[:1]
             if len(images) > 0:
-                image_url = images[0].thumbnail_url
                 image_url = self._get_full_url(request, image_url)
             product_url = self._get_full_url(
               request,
