@@ -1,4 +1,5 @@
 import requests
+import pprint
 
 from django.apps import apps
 
@@ -22,7 +23,7 @@ TIME_RANGES = (
 
 class EasyRec(object):
 
-    _base_url = "api/1.0/json/"
+    _base_url = "api/"
     _default_item_type = 'ITEM'
     _default_time_range = TIME_RANGE_ALL
 
@@ -42,22 +43,12 @@ class EasyRec(object):
                  item_type='ITEM', user_id=None, image_url=None,
                  action_time=None):
         options = {
-            'apikey': self._api_key,
-            'tenantid': self._tenant,
             'sessionid': session_id,
             'itemid': item_id,
             'itemdescription': item_desc,
-            'itemurl': item_url,
-            'itemtype': self._get_item_type(item_type)
         }
         if user_id:
             options['userid'] = user_id
-
-        if image_url:
-            options['itemimageurl'] = image_url
-
-        if action_time:
-            options['actiontime'] = action_time.strftime("%d_%m_%Y_%H_%M_%S")
 
         url = self._build_url('view')
         return self._fetch_response(url, params=options)
@@ -159,7 +150,6 @@ class EasyRec(object):
 
         if action_type:
             options['actiontype'] = action_type
-
         url = self._build_url('recommendationsforuser')
         recommendations = self._fetch_response(url, params=options)
         return self._recommendations_to_products(recommendations)
@@ -363,38 +353,36 @@ class EasyRec(object):
         response.raise_for_status()
         content = response.json()
         self.check_response_for_errors(content)
+        logger.debug('_fetch response - content: %s' % content)
         return content
 
     def _recommendations_to_products(self, recommendations):
-        recommendeditems = recommendations.get('recommendeditems')
-        if not recommendeditems:
+        logger.debug('recommendations to products: %s' % pprint.pformat(recommendations) )
+        if not recommendations:
             return []
-        items = recommendeditems.get('item')
-        if not items:
-            return []
-        # if only a single recommendation it is not returned as a list
-        if "id" in items:
-            items = [items]
         url_map = {}
+        score_map = {}
         upcs = []
-        for item in items:
+        for item in recommendations:
+            logger.debug('item: %s' % pprint.pformat(item))
             upc = item.get('id')
             upcs.append(upc)
-            url_map[upc] = item.get('url')
+#            url_map[upc] = item.get('url')
+            score_map[upc] = item.get('score')
         Product = apps.get_model('catalogue', 'Product')
         products = Product.browsable.filter(upc__in=upcs)
         results = []
         for product in products:
             results.append({
                 "product": product,
+                "score": score_map.get(product.upc),
                 "tracking_url": url_map.get(product.upc)
             })
+        logger.debug('results: %s' % pprint.pformat(results))
         return results
 
     def check_response_for_errors(self, json):
-        if json.get('error', False):
-            raise EasyRecException(json['error'])
-
+        pass
 
 class DummyResponse(object):
 

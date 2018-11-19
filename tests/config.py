@@ -42,7 +42,7 @@ if not settings.configured:
                 'django.contrib.auth.backends.ModelBackend',
             ),
             ROOT_URLCONF='tests.urls',
-            DEBUG=False,
+            DEBUG=True,
             SITE_ID=1,
             APPEND_SLASH=True,
             HAYSTACK_CONNECTIONS={
