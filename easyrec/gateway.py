@@ -43,12 +43,12 @@ class EasyRec(object):
                  item_type='ITEM', user_id=None, image_url=None,
                  action_time=None):
         options = {
-            'sessionid': session_id,
-            'itemid': item_id,
-            'itemdescription': item_desc,
+            'session_id': session_id,
+            'item_id': item_id,
+            'item_description': item_desc,
         }
         if user_id:
-            options['userid'] = user_id
+            options['user_id'] = user_id
 
         url = self._build_url('view')
         return self._fetch_response(url, params=options)
@@ -57,22 +57,18 @@ class EasyRec(object):
                 item_type='ITEM', user_id=None, image_url=None,
                 action_time=None):
         options = {
-            'apikey': self._api_key,
-            'tenantid': self._tenant,
-            'sessionid': session_id,
-            'itemid': item_id,
-            'itemdescription': item_desc,
-            'itemurl': item_url,
-            'itemtype': self._get_item_type(item_type)
+            'session_id': session_id,
+            'item_id': item_id,
+            'item_description': item_desc,
         }
         if user_id:
-            options['userid'] = user_id
+            options['user_id'] = user_id
 
         if image_url:
-            options['itemimageurl'] = image_url
+            options['itemimage_url'] = image_url
 
         if action_time:
-            options['actiontime'] = action_time.strftime("%d_%m_%Y_%H_%M_%S")
+            options['action_time'] = action_time.strftime("%d_%m_%Y_%H_%M_%S")
 
         url = self._build_url('buy')
         return self._fetch_response(url, params=options)
@@ -81,17 +77,14 @@ class EasyRec(object):
                    item_type='ITEM',  user_id=None, image_url=None,
                    action_time=None):
         options = {
-            'apikey': self._api_key,
-            'tenantid': self._tenant,
-            'sessionid': session_id,
-            'itemid': item_id,
-            'itemdescription': item_desc,
-            'itemurl': item_url,
+            'session_id': session_id,
+            'item_id': item_id,
+            'item_description': item_desc,
             'itemtype': self._get_item_type(item_type),
-            'ratingvalue': rating,
+            'rating_value': rating,
         }
         if user_id:
-            options['userid'] = user_id
+            options['user_id'] = user_id
 
         if image_url:
             options['itemimageurl'] = image_url
@@ -106,21 +99,19 @@ class EasyRec(object):
                    value=None, item_type='ITEM',  user_id=None, image_url=None,
                    action_time=None):
         options = {
-            'apikey': self._api_key,
-            'tenantid': self._tenant,
-            'sessionid': session_id,
-            'itemid': item_id,
-            'itemdescription': item_desc,
-            'itemurl': item_url,
-            'itemtype': self._get_item_type(item_type),
-            'actiontype': action,
+            'session_id': session_id,
+            'item_id': item_id,
+            'item_description': item_desc,
+            'item_url': item_url,
+            'item_type': self._get_item_type(item_type),
+            'action_type': action,
         }
 
         if value:
-            options['actionvalue'] = value
+            options['action_value'] = value
 
         if user_id:
-            options['userid'] = user_id
+            options['user_id'] = user_id
 
         if image_url:
             options['itemimageurl'] = image_url
@@ -137,9 +128,7 @@ class EasyRec(object):
     def get_user_recommendations(self, user_id, max_results=None,
         requested_item_type=None, action_type=None):
         options = {
-            'apikey': self._api_key,
-            'tenantid': self._tenant,
-            'userid': user_id
+            'user_id': user_id
         }
 
         if max_results:
@@ -365,10 +354,10 @@ class EasyRec(object):
         upcs = []
         for item in recommendations:
             logger.debug('item: %s' % pprint.pformat(item))
-            upc = item.get('id')
+            upc = item.get('item_id')
             upcs.append(upc)
 #            url_map[upc] = item.get('url')
-            score_map[upc] = item.get('score')
+            score_map[upc] = item.get('probability_score')
         Product = apps.get_model('catalogue', 'Product')
         products = Product.browsable.filter(upc__in=upcs)
         results = []
