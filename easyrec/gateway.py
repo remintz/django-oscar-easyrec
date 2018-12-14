@@ -40,18 +40,23 @@ class EasyRec(object):
     # Actions
 
     def add_view(self, session_id, item_id, item_desc, item_url,
-                 item_type='ITEM', user_id=None, image_url=None,
-                 action_time=None):
+                 item_type='ITEM', item_categories=None, user_id=None, image_url=None,
+                 action_time=None, age=None, gender=None, school_level=None):
+
+        print('item_categories %s' % item_categories)
         options = {
             'session_id': session_id,
             'item_id': item_id,
-            'item_description': item_desc,
+            'item_categories': item_categories,
         }
         if user_id:
-            options['user_id'] = user_id
+            options['user_id'] = str(user_id)
+            options['user_age'] = str(age)
+            options['user_gender'] = gender
+            options['user_school_level'] = school_level
 
         url = self._build_url('view')
-        return self._fetch_response(url, params=options)
+        return self._fetch_response(url, method="POST", headers=options)
 
     def add_buy(self, session_id, item_id, item_desc, item_url,
                 item_type='ITEM', user_id=None, image_url=None,
@@ -328,13 +333,14 @@ class EasyRec(object):
         url = "%s%s" % (self._endpoint, path)
         return url
 
-    def _fetch_response(self, url, method="GET", params=None):
-        func = {
-            'GET': self._requests.get,
-            'POST': self._requests.post
-        }.get(method, self._requests.get)
-        logger.debug("%s: %s %s" % (method, url, params))
-        response = func(url, params=params)
+    def _fetch_response(self, url, method="GET", params=None, headers=None):
+        if (method == "GET"):
+            func = self._requests.get
+        else:
+            func = self._requests.post
+        logger.debug("method: %s, url: %s, params: %s, headers: %s" % (method, url, params, headers))
+        response = func(url, params=params, headers=headers)
+        #response = requests.post(url, headers=headers)
         logger.debug("%s: %s" % (
             response.status_code,
             response.text

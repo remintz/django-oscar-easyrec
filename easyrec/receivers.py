@@ -1,7 +1,6 @@
 from django.conf import settings
-
 from oscar.core.loading import get_class
-
+from datetime import date 
 
 product_viewed = get_class('catalogue.signals', 'product_viewed')
 post_checkout = get_class('checkout.signals', 'post_checkout')
@@ -15,6 +14,9 @@ def has_product(obj):
         return False
     return True
 
+def calculate_age(born):
+    today = date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
 class EasyRecListeners():
 
@@ -34,19 +36,34 @@ class EasyRecListeners():
         user_id = None
         if user.is_authenticated:
             user_id = user.id
+            if (user.demographics):
+                birth_date = user.demographics.birth_date
+                age = calculate_age(birth_date)
+                gender = user.demographics.gender
+                school_level = user.demographics.school_level
         images = product.images.all()[:1]
         if len(images) > 0:
             image_url = self._get_full_url(request, image_url)
-
+        category_list = product.get_categories().all()
+        category_names = ""
+        for cat in category_list:
+            category_names += str(cat) + "||"
+        if (len(category_names) > 0):
+            category_names = category_names[:-2]
+        category_names = category_names
         product_url = self._get_full_url(request, product.get_absolute_url())
         try:
             self.add_view(request.session.session_key,
                 product.upc,
                 product.get_title(),
                 product_url,
-                product.get_product_class().name,
-                user_id,
-                image_url
+                item_type=product.get_product_class().name,
+                item_categories = category_names,
+                user_id=user_id,
+                image_url=image_url,
+                age=age,
+                gender=gender,
+                school_level=school_level
             )
         except:
            pass
