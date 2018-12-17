@@ -50,7 +50,6 @@ class EasyRecListeners():
             category_names += str(cat) + "||"
         if (len(category_names) > 0):
             category_names = category_names[:-2]
-        category_names = category_names
         product_url = self._get_full_url(request, product.get_absolute_url())
         try:
             self.add_view(request.session.session_key,
@@ -69,33 +68,55 @@ class EasyRecListeners():
            pass
 
     def on_post_checkout(self, sender, order, user, request, response, **kwargs):
+        print('on_post_checkout **************')
         user_id = None
         if user.is_authenticated:
             user_id = user.id
+            if (user.demographics):
+                birth_date = user.demographics.birth_date
+                age = calculate_age(birth_date)
+                gender = user.demographics.gender
+                school_level = user.demographics.school_level
+
         for line in filter(has_product, order.lines.all()):
+            print('each line: %s' % line)
             product = line.product
             image_url = None
             images = product.images.all()[:1]
             if len(images) > 0:
                 image_url = self._get_full_url(request, image_url)
 
+            category_list = product.get_categories().all()
+            category_names = ""
+            for cat in category_list:
+                category_names += str(cat) + "||"
+            if (len(category_names) > 0):
+                category_names = category_names[:-2]
+
             product_url = self._get_full_url(
               request,
               product.get_absolute_url()
             )
+            print('line.quantity: %s' % line.quantity)
             for n in range(line.quantity):
                 try:
+                    print('calling add_buy')
                     self.add_buy(request.session.session_key,
                         product.upc,
                         product.get_title(),
                         product_url,
-                        product.get_product_class().name,
-                        user_id,
-                        image_url,
-                        order.date_placed
+                        item_type=product.get_product_class().name,
+                        item_categories = category_names,
+                        user_id=user_id,
+                        image_url=image_url,
+                        age=age,
+                        gender=gender,
+                        school_level=school_level,
+                        action_time=order.date_placed
                     )
-                except:
-                  pass
+                except Exception as ex:
+                    print(ex)
+                    pass
 
     def on_review_added(self, sender, review, user, request, **kwargs):
         if has_product(review):

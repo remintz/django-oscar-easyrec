@@ -59,24 +59,23 @@ class EasyRec(object):
         return self._fetch_response(url, method="POST", headers=options)
 
     def add_buy(self, session_id, item_id, item_desc, item_url,
-                item_type='ITEM', user_id=None, image_url=None,
-                action_time=None):
+                 item_type='ITEM', item_categories=None, user_id=None, image_url=None,
+                 action_time=None, age=None, gender=None, school_level=None):
+        print('add_buy')
         options = {
             'session_id': session_id,
             'item_id': item_id,
-            'item_description': item_desc,
+            'item_categories': item_categories,
         }
         if user_id:
-            options['user_id'] = user_id
-
-        if image_url:
-            options['itemimage_url'] = image_url
-
-        if action_time:
-            options['action_time'] = action_time.strftime("%d_%m_%Y_%H_%M_%S")
+            options['user_id'] = str(user_id)
+            options['user_age'] = str(age)
+            options['user_gender'] = gender
+            options['user_school_level'] = school_level
 
         url = self._build_url('buy')
-        return self._fetch_response(url, params=options)
+        print('fetch response')
+        return self._fetch_response(url, method="POST", headers=options)
 
     def add_rating(self, session_id, item_id, item_desc, item_url, rating,
                    item_type='ITEM',  user_id=None, image_url=None,
