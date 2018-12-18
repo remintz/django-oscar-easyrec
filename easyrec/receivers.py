@@ -1,6 +1,8 @@
 from django.conf import settings
 from oscar.core.loading import get_class
 from datetime import date 
+import logging
+logger = logging.getLogger(__name__)
 
 product_viewed = get_class('catalogue.signals', 'product_viewed')
 post_checkout = get_class('checkout.signals', 'post_checkout')
@@ -64,11 +66,11 @@ class EasyRecListeners():
                 gender=gender,
                 school_level=school_level
             )
-        except:
-           pass
+        except Exception as ex:
+            logger.error(ex)
+            pass
 
     def on_post_checkout(self, sender, order, user, request, response, **kwargs):
-        print('on_post_checkout **************')
         user_id = None
         if user.is_authenticated:
             user_id = user.id
@@ -79,7 +81,6 @@ class EasyRecListeners():
                 school_level = user.demographics.school_level
 
         for line in filter(has_product, order.lines.all()):
-            print('each line: %s' % line)
             product = line.product
             image_url = None
             images = product.images.all()[:1]
@@ -97,10 +98,8 @@ class EasyRecListeners():
               request,
               product.get_absolute_url()
             )
-            print('line.quantity: %s' % line.quantity)
             for n in range(line.quantity):
                 try:
-                    print('calling add_buy')
                     self.add_buy(request.session.session_key,
                         product.upc,
                         product.get_title(),
@@ -115,7 +114,7 @@ class EasyRecListeners():
                         action_time=order.date_placed
                     )
                 except Exception as ex:
-                    print(ex)
+                    logger.error(ex)
                     pass
 
     def on_review_added(self, sender, review, user, request, **kwargs):
@@ -145,8 +144,9 @@ class EasyRecListeners():
                     image_url,
                     review.date_created
                 )
-            except:
-              pass
+            except Exception as ex:
+                logger.error(ex)
+                pass
 
     def register_listeners(self):
         product_viewed.connect(self.on_product_view,

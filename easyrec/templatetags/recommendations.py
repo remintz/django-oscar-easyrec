@@ -2,6 +2,9 @@ from easyrec.utils import get_gateway
 
 from django import template
 from django.apps import apps
+import logging
+logger = logging.getLogger(__name__)
+from datetime import date 
 
 Product = apps.get_model('catalogue', 'Product')
 
@@ -9,34 +12,65 @@ easyrec = get_gateway()
 
 register = template.Library()
 
+def calculate_age(born):
+    today = date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
 @register.simple_tag
 def user_recommendations(
+    rec_type,
     user,
+    product,
     max_results=None,
     requested_item_type=None,
-    action_type=None
+    action_type=None,
+    recommendation_type=None
     ):
     """
-    Usage: {% user_recommendations [user] as [var] %}
+    Usage: {% user_recommendations [rec_type] [user] [product] as [var] %}
 
     Sets [var] to contain a list of recommended titles
     for the passed in user
+
+    [rec_type] is the type of the recommendation algorithm, either (Q)uantum or (T)raditional
     """
+    logging.debug('user_recommendations: rec_type: %s, user: %s, product: %s' % (rec_type, user, product))
     if not user.is_authenticated:
         return Product.objects.none()
+
+    if (user.demographics):
+        birth_date = user.demographics.birth_date
+        age = calculate_age(birth_date)
 
     if action_type:
         action_type = action_type.upper()
 
+    if recommendation_type:
+        recommendation_type = recommendation_type.upper()
+
+    category_list = product.get_categories().all()
+    category_names = ""
+    for cat in category_list:
+        category_names += str(cat) + "||"
+    if (len(category_names) > 0):
+        category_names = category_names[:-2]
+
     try:
         return easyrec.get_user_recommendations(
+            rec_type,
             user.id,
+            age,
+            user.demographics.gender,
+            user.demographics.school_level,
+            product.upc,
+            category_names,
             max_results,
             requested_item_type,
-            action_type
+            action_type,
+            recommendation_type
         )
-    except:
+    except Exception as exc:
+        logging.warning('user_recommendations: exception: %s', exc)
         return Product.objects.none()
 
 

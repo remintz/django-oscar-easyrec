@@ -43,7 +43,6 @@ class EasyRec(object):
                  item_type='ITEM', item_categories=None, user_id=None, image_url=None,
                  action_time=None, age=None, gender=None, school_level=None):
 
-        print('item_categories %s' % item_categories)
         options = {
             'session_id': session_id,
             'item_id': item_id,
@@ -61,7 +60,6 @@ class EasyRec(object):
     def add_buy(self, session_id, item_id, item_desc, item_url,
                  item_type='ITEM', item_categories=None, user_id=None, image_url=None,
                  action_time=None, age=None, gender=None, school_level=None):
-        print('add_buy')
         options = {
             'session_id': session_id,
             'item_id': item_id,
@@ -74,7 +72,6 @@ class EasyRec(object):
             options['user_school_level'] = school_level
 
         url = self._build_url('buy')
-        print('fetch response')
         return self._fetch_response(url, method="POST", headers=options)
 
     def add_rating(self, session_id, item_id, item_desc, item_url, rating,
@@ -129,10 +126,19 @@ class EasyRec(object):
 
     # Recommendations
 
-    def get_user_recommendations(self, user_id, max_results=None,
-        requested_item_type=None, action_type=None):
+    def get_user_recommendations(self, rec_type, user_id, user_age, user_gender, user_school_level, product_upc, product_categories, max_results=None,
+        requested_item_type=None, action_type=None, recommendation_type=None):
+        logging.debug('get_user_recommendations: rec_type: %s, user_id: %s, user_age: %s, user_gender: %s, user_school_level: %s, product_upc: %s, product_categories: %s' % (
+            rec_type, user_id, user_age, user_gender, user_school_level, product_upc, product_categories
+        ))
         options = {
-            'user_id': user_id
+            'rec_type': rec_type,
+            'user_id': user_id,
+            'user_age': user_age,
+            'user_gender': user_gender,
+            'user_school_level': user_school_level,
+            'item_id': product_upc,
+            'item_categories': product_categories
         }
 
         if max_results:
@@ -143,7 +149,11 @@ class EasyRec(object):
 
         if action_type:
             options['actiontype'] = action_type
-        url = self._build_url('recommendationsforuser')
+
+        if recommendation_type:
+            options['recommendation_type'] = recommendation_type
+
+        url = self._build_url('recommendations')
         recommendations = self._fetch_response(url, params=options)
         return self._recommendations_to_products(recommendations)
 
