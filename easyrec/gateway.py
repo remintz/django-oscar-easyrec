@@ -360,15 +360,18 @@ class EasyRec(object):
         logger.debug('_fetch response - content: %s' % content)
         return content
 
-    def _recommendations_to_products(self, recommendations):
-        logger.debug('recommendations to products: %s' % pprint.pformat(recommendations) )
+    def _recommendations_to_products(self, response):
+#        logger.debug('recommendations to products: %s' % pprint.pformat(response) )
+        if not response:
+            return []
+        recommendations = response.get('recommendations')
         if not recommendations:
             return []
         url_map = {}
         score_map = {}
         upcs = []
         for item in recommendations:
-            logger.debug('item: %s' % pprint.pformat(item))
+#            logger.debug('item: %s' % pprint.pformat(item))
             upc = item.get('item_id')
             upcs.append(upc)
 #            url_map[upc] = item.get('url')
